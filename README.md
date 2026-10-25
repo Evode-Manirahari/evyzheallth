@@ -119,16 +119,24 @@ python3.11 -m venv ~/evyz-research-venv
 ```
 Key pinned versions are mne 1.13.2, pyriemann 0.12, scikit-learn 1.9.1, numpy 2.4.6 and scipy 1.17.1. The full list is in `requirements.lock.txt`.
 
-**3. EEG input files.** These are not in Git; see the table below.
+**3. EEG input files.** These are not in Git; see the table below. Run these commands from the repo root:
 ```
 export EVYZ_BCI2A_DIR=/abs/path/bci_iv_2a           # outside the repo
-# put A01T.mat … A09E.mat (BNCI Horizon 001-2014) in $EVYZ_BCI2A_DIR
+mkdir -p "$EVYZ_BCI2A_DIR"
+for s in 1 2 3 4 5 6 7 8 9; do for t in T E; do
+  curl -fL -o "$EVYZ_BCI2A_DIR/A0${s}${t}.mat" "https://bnci-horizon-2020.eu/database/data-sets/001-2014/A0${s}${t}.mat"
+done; done
+(cd "$EVYZ_BCI2A_DIR" && sha256sum -c "$OLDPWD/research/eeg_calibration/SHA256SUMS.txt")   # macOS: shasum -a 256 -c
+# optional: official evaluation labels, used only by `run.py inspect`
+curl -fL -o /tmp/true_labels.zip https://www.bbci.de/competition/iv/results/ds2a/true_labels.zip
+unzip -o /tmp/true_labels.zip -d "$EVYZ_BCI2A_DIR/true_labels"
 cd research/eeg_calibration
-~/evyz-research-venv/bin/python demo_cli.py prepare  # writes $EVYZ_BCI2A_DIR/artifacts/ (~18 MB, ~15 s)
+EVYZ_BCI2A_DIR="$EVYZ_BCI2A_DIR" ~/evyz-research-venv/bin/python demo_cli.py prepare  # writes $EVYZ_BCI2A_DIR/artifacts/ (~18 MB, ~15 s)
 ```
+The recordings are licensed CC BY-ND 4.0 (BNCI Horizon 2020, data set 001-2014). The download URL redirects to the TU Graz mirror.
 After `prepare`, the `.mat` files can be removed: the demo reads only `artifacts/`.
 
-**4. `backend/.env`** (not committed)
+**4. `backend/.env`** (not committed). Start from `cp backend/.env.example backend/.env` and `cp frontend/.env.example frontend/.env`; both contain placeholders only.
 ```
 MONGO_URL=…  DB_NAME=…  CORS_ORIGINS=http://localhost:3000  EMERGENT_LLM_KEY=…  ADMIN_EMAIL=admin@example.com
 CLERK_PUBLISHABLE_KEY=…  CLERK_SECRET_KEY=…   (Emergent provisions these; self-hosting needs your own Clerk app)
