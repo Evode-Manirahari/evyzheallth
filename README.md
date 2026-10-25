@@ -1,6 +1,14 @@
-# EVYZ — between-visit monitoring for specialist clinics (hackathon MVP, project: evyzhealth)
+# EVYZ
 
-EVYZ turns imported home glucose readings into patient timelines. It compares each new reading with that patient's own recent history, groups sustained changes into **changes for review**, and gives care teams an evidence-grounded brief of what changed. Reviewers then save a note and a review status.
+**EVYZ helps specialist clinics see what changed between patient visits.**
+
+Patients collect health data at home through measurements such as glucose, heart rate, and skin temperature. EVYZ brings these measurements into one timeline, compares them with each person’s recent history, and highlights changes that persist.
+
+For each change, the care team can see what happened, read a short AI summary linked to the supporting data, and record their review.
+
+Our prototype shows glucose, heart rate, and skin temperature, with change detection currently focused on glucose.
+
+**Our goal is to help care teams spend less time sorting through health data and more time reviewing changes that deserve attention.**
 
 > Demonstration software. It is not clinically validated, not a medical device, and makes no HIPAA-compliance claim. Detected changes are not diagnoses. If no change is detected, that does not mean a patient is clinically safe.
 
