@@ -12,7 +12,7 @@ const STATUS_TEXT = {
 const Section = ({ title, children, testid }) => (
   <div>
     <div className="eyebrow mb-1">{title}</div>
-    <p className="text-sm leading-relaxed" data-testid={testid}>{children}</p>
+    <p className="text-[15px] leading-relaxed max-w-[72ch]" data-testid={testid}>{children}</p>
   </div>
 );
 
@@ -33,18 +33,18 @@ export const BriefCard = ({ summary, loading, error, onRetry, readings }) => {
   const ai = summary.source === "ai";
   const byId = Object.fromEntries(readings.map((r) => [r.id, r]));
   return (
-    <div className="panel p-5 space-y-4" data-testid="brief-card">
+    <div className="panel p-5 sm:p-6 space-y-5" data-testid="brief-card">
       <div className="flex flex-wrap items-center gap-2 justify-between">
         {ai ? (
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium rounded px-2 py-1 bg-accent text-accent-foreground" data-testid="brief-source-label">
-            <Sparkles className="h-3.5 w-3.5" />AI-generated brief · {summary.model}
+          <span className="pill tag-ok" data-testid="brief-source-label">
+            <Sparkles className="h-3.5 w-3.5" aria-hidden />AI-generated brief · {summary.model}
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium rounded px-2 py-1 bg-secondary" data-testid="brief-source-label">
-            <FileText className="h-3.5 w-3.5" />Template summary — {STATUS_TEXT[summary.generation_status] || "deterministic"}
+          <span className="pill bg-secondary text-foreground" data-testid="brief-source-label">
+            <FileText className="h-3.5 w-3.5" aria-hidden />Template summary — {STATUS_TEXT[summary.generation_status] || "deterministic"}
           </span>
         )}
-        <span className="text-[11px] text-muted-foreground" data-testid="brief-cache-info">
+        <span className="text-xs text-muted-foreground" data-testid="brief-cache-info">
           evidence v{summary.evidence_version} · {summary.cached ? "cached" : "new"} · {fmtTs(summary.created_at?.slice(0, 19))} UTC
         </span>
       </div>
@@ -63,8 +63,8 @@ export const BriefCard = ({ summary, loading, error, onRetry, readings }) => {
       {!ai && summary.validation_errors?.length > 0 && (
         <div className="text-xs text-muted-foreground" data-testid="brief-validation-errors">Fallback reason: {summary.validation_errors.join("; ")}</div>
       )}
-      <div className="flex items-center justify-between gap-3 border-t pt-3">
-        <p className="text-[11px] text-muted-foreground">Generated only from this participant's computed event statistics. Not a diagnosis, cause or treatment recommendation.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line)] pt-4">
+        <p className="text-xs text-muted-foreground">Generated only from this participant's computed event statistics. Not a diagnosis, cause or treatment recommendation.</p>
         {!ai && <Button size="sm" variant="outline" onClick={onRetry} data-testid="brief-retry-ai"><RefreshCw className="h-3.5 w-3.5 mr-1" />Try AI again</Button>}
       </div>
     </div>

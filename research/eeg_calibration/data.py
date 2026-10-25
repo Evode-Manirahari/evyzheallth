@@ -17,9 +17,9 @@ FS_EXPECTED = 250
 CLASS_NAMES = ["left hand", "right hand", "both feet", "tongue"]
 
 
-def load_session(subject: str, session: str) -> dict:
+def load_session(subject: str, session: str, path=None) -> dict:
     """Return runs with continuous signal, trial onsets (samples, start of trial t=0), labels 1-4, artifact flags."""
-    m = loadmat(RAW_DIR / f"{subject}{session}.mat", squeeze_me=True, struct_as_record=False)["data"]
+    m = loadmat(Path(path) if path else RAW_DIR / f"{subject}{session}.mat", squeeze_me=True, struct_as_record=False)["data"]
     runs = []
     for i, r in enumerate(np.atleast_1d(m)):
         trial = np.atleast_1d(r.trial).astype(int)
