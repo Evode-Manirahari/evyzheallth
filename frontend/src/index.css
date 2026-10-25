@@ -1,0 +1,73 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 45 20% 97%;
+        --foreground: 218 52% 17%;
+        --card: 0 0% 100%;
+        --card-foreground: 218 52% 17%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 218 52% 17%;
+        --primary: 175 72% 26%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 45 16% 93%;
+        --secondary-foreground: 218 52% 17%;
+        --muted: 45 16% 94%;
+        --muted-foreground: 218 14% 38%;
+        --accent: 175 35% 93%;
+        --accent-foreground: 175 72% 20%;
+        --destructive: 0 70% 42%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 40 13% 86%;
+        --input: 40 13% 80%;
+        --ring: 175 72% 30%;
+        --radius: 0.375rem;
+        --amber: #b45309;
+        --amber-soft: #fef3c7;
+        --navy: #162a4a;
+        --teal: #0f766e;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-family: "IBM Plex Sans", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+    .mono, code, .tabular {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-variant-numeric: tabular-nums;
+    }
+    :focus-visible {
+        outline: 2px solid hsl(var(--ring));
+        outline-offset: 2px;
+    }
+}
+
+.eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: hsl(var(--muted-foreground));
+}
+
+.panel {
+    background: #fff;
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+}
+
+.tag-change {
+    background: var(--amber-soft);
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
