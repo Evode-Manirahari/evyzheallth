@@ -1,35 +1,49 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* EVYZ design tokens: warm paper, dark ink, restrained teal, amber = awaiting review. See /app/DESIGN.md */
 @layer base {
     :root {
-        --background: 45 20% 97%;
-        --foreground: 218 52% 17%;
-        --card: 0 0% 100%;
-        --card-foreground: 218 52% 17%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 218 52% 17%;
-        --primary: 175 72% 26%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 45 16% 93%;
-        --secondary-foreground: 218 52% 17%;
-        --muted: 45 16% 94%;
-        --muted-foreground: 218 14% 38%;
-        --accent: 175 35% 93%;
-        --accent-foreground: 175 72% 20%;
-        --destructive: 0 70% 42%;
-        --destructive-foreground: 0 0% 100%;
-        --border: 40 13% 86%;
-        --input: 40 13% 80%;
-        --ring: 175 72% 30%;
-        --radius: 0.375rem;
-        --amber: #b45309;
-        --amber-soft: #fef3c7;
-        --navy: #162a4a;
-        --teal: #0f766e;
+        --background: 42 30% 95%;
+        --foreground: 156 14% 12%;
+        --card: 40 60% 99%;
+        --card-foreground: 156 14% 12%;
+        --popover: 40 60% 99%;
+        --popover-foreground: 156 14% 12%;
+        --primary: 174 78% 23%;
+        --primary-foreground: 40 60% 99%;
+        --secondary: 40 22% 90%;
+        --secondary-foreground: 156 14% 12%;
+        --muted: 40 22% 91%;
+        --muted-foreground: 150 6% 33%;
+        --accent: 172 30% 90%;
+        --accent-foreground: 174 78% 18%;
+        --destructive: 6 62% 38%;
+        --destructive-foreground: 40 60% 99%;
+        --border: 38 20% 85%;
+        --input: 38 16% 76%;
+        --ring: 174 78% 28%;
+        --radius: 0.5rem;
+
+        --paper: hsl(42 30% 95%);
+        --surface: hsl(40 60% 99%);
+        --ink: hsl(156 14% 12%);
+        --ink-2: hsl(150 6% 33%);
+        --line: hsl(38 20% 85%);
+        --teal: #0e6b62;
+        --teal-soft: #dcebe7;
+        --amber: #8a4a00;
+        --amber-soft: #fbedd0;
+        --amber-line: #e9b65c;
+        --regress: #9b2f1f;
+        --regress-soft: #f8e2dc;
+        --navy: hsl(156 14% 12%);
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        --shadow-1: 0 1px 2px hsl(156 20% 10% / 0.06), 0 0 0 1px hsl(38 20% 70% / 0.28);
+        --shadow-2: 0 6px 18px -8px hsl(156 20% 10% / 0.18), 0 0 0 1px hsl(38 20% 70% / 0.3);
     }
 }
 
@@ -37,37 +51,224 @@
     * {
         @apply border-border;
     }
+    html {
+        scrollbar-color: hsl(38 14% 72%) transparent;
+        scroll-padding-top: 5.5rem;
+    }
+    @media (max-width: 639px) {
+        html { scroll-padding-top: 8rem; }
+    }
     body {
         @apply bg-background text-foreground;
-        font-family: "IBM Plex Sans", system-ui, sans-serif;
+        font-family: "Public Sans", system-ui, sans-serif;
+        font-feature-settings: "tnum" 1, "lnum" 1;
         -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
     }
-    .mono, code, .tabular {
+    ::selection {
+        background: var(--teal-soft);
+        color: var(--ink);
+    }
+    h1, h2, h3 {
+        text-wrap: balance;
+        letter-spacing: -0.012em;
+    }
+    .mono, .tabular {
+        font-variant-numeric: tabular-nums lining-nums;
+        letter-spacing: -0.005em;
+    }
+    code, .code-id {
         font-family: "IBM Plex Mono", ui-monospace, monospace;
         font-variant-numeric: tabular-nums;
+        font-size: 0.92em;
+    }
+    a {
+        text-underline-offset: 3px;
     }
     :focus-visible {
-        outline: 2px solid hsl(var(--ring));
+        outline: 2px solid var(--teal);
         outline-offset: 2px;
+        border-radius: 4px;
     }
 }
 
+.display {
+    font-family: "Newsreader", Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+}
+
 .eyebrow {
-    font-size: 0.7rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
     font-weight: 600;
     color: hsl(var(--muted-foreground));
 }
 
 .panel {
-    background: #fff;
-    border: 1px solid hsl(var(--border));
+    background: var(--surface);
     border-radius: 8px;
+    box-shadow: 0 0 0 1px var(--line);
+    border: 0;
 }
 
 .tag-change {
     background: var(--amber-soft);
-    color: #92400e;
-    border: 1px solid #fcd34d;
+    color: var(--amber);
+    box-shadow: inset 0 0 0 1px var(--amber-line);
+}
+
+.tag-ok {
+    background: var(--teal-soft);
+    color: var(--teal);
+}
+
+.tag-regress {
+    background: var(--regress-soft);
+    color: var(--regress);
+    box-shadow: inset 0 0 0 1px #e3a596;
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.rule {
+    height: 1px;
+    background: var(--line);
+}
+
+.step-num {
+    display: inline-grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: var(--secondary, hsl(40 22% 90%));
+    color: var(--ink);
+    flex: none;
+}
+
+.step-num[data-state="done"] {
+    background: var(--teal);
+    color: var(--surface);
+}
+
+.step-num[data-state="active"] {
+    background: var(--ink);
+    color: var(--surface);
+}
+
+.enter {
+    animation: enter 220ms var(--ease-out) both;
+}
+
+@keyframes enter {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+}
+
+.lift {
+    transition: box-shadow 180ms var(--ease-out), background-color 180ms var(--ease-out), transform 180ms var(--ease-out);
+}
+
+.lift:hover {
+    box-shadow: 0 0 0 1px hsl(38 18% 70%), 0 4px 14px -8px hsl(156 20% 10% / 0.25);
+}
+
+/* Micrographics: hairline section rules with index + tick ruler (EVYZ experiment) */
+.mg-rule {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.72rem;
+    color: var(--ink-2);
+}
+.mg-index {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-weight: 500;
+    color: var(--ink);
+}
+.mg-label {
+    font-weight: 600;
+    white-space: nowrap;
+}
+.mg-ticks {
+    flex: 1;
+    min-width: 1.5rem;
+    height: 7px;
+    background:
+        linear-gradient(var(--line), var(--line)) bottom / 100% 1px no-repeat,
+        repeating-linear-gradient(90deg, hsl(38 14% 68%) 0 1px, transparent 1px 8px) bottom / 100% 4px no-repeat;
+}
+.mg-meta {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    white-space: nowrap;
+}
+.mg-hatch {
+    background-image: repeating-linear-gradient(135deg, transparent 0 3px, hsl(0 0% 100% / 0.35) 3px 4.5px);
+}
+.mg-corners {
+    position: relative;
+}
+.mg-corners::before, .mg-corners::after {
+    content: "";
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-color: var(--ink);
+    opacity: 0.55;
+    pointer-events: none;
+}
+.mg-corners::before { top: -1px; left: -1px; border-top: 1.5px solid; border-left: 1.5px solid; border-top-left-radius: 8px; }
+.mg-corners::after { bottom: -1px; right: -1px; border-bottom: 1.5px solid; border-right: 1.5px solid; border-bottom-right-radius: 8px; }
+.figure {
+    font-family: "Newsreader", Georgia, serif;
+    font-weight: 600;
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+@keyframes mg-scan {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(250%); }
+}
+.mg-scan {
+    animation: mg-scan 1.2s linear infinite;
+}
+@keyframes mg-pulse {
+    0%, 100% { opacity: 0.35; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.35); }
+}
+.mg-pulse {
+    animation: mg-pulse 1.4s ease-in-out infinite;
+}
+@media (max-width: 639px) {
+    .pill { white-space: normal; }
+}
+@media (hover: none) {
+    .lift:hover { box-shadow: 0 0 0 1px var(--line); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mg-scan { animation: none; transform: none; opacity: 0.6; width: 100% !important; }
+    .mg-pulse { animation: none; opacity: 0.8; }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

@@ -9,23 +9,25 @@ import { Loading, ErrorBox, Empty, Stat } from "../components/StateViews";
 import { GlucoseChart, ChartLegend } from "../components/GlucoseChart";
 import { ContextChart } from "../components/ContextChart";
 import { EventList, EvidencePanel } from "../components/EventList";
+import { SectionRule } from "../components/Micro";
+import { AnimatePresence } from "framer-motion";
 
 const H = 3600 * 1000;
 const PRESETS = [["All", null], ["Last 24 h", 24], ["Last 3 days", 72], ["Last 7 days", 168]];
 
 const RangeControls = ({ full, range, setRange }) => (
-  <div className="flex flex-wrap items-end gap-3" data-testid="range-controls">
-    <div className="flex gap-1" role="group" aria-label="Date range presets">
+  <div className="flex flex-wrap items-end gap-x-4 gap-y-3" data-testid="range-controls">
+    <div className="flex flex-wrap gap-1" role="group" aria-label="Date range presets">
       {PRESETS.map(([label, h]) => (
         <Button key={label} size="sm" variant="outline" data-testid={`range-preset-${h || "all"}`}
           onClick={() => setRange(h ? [Math.max(full[1] - h * H, full[0]), full[1]] : full)}>{label}</Button>
       ))}
     </div>
     <label className="text-xs space-y-1"><span className="eyebrow block">From</span>
-      <input type="datetime-local" className="h-9 rounded-md border bg-white px-2 mono text-xs" value={msToInput(range[0])}
+      <input type="datetime-local" className="h-9 rounded-md border bg-card px-2 mono text-xs" value={msToInput(range[0])}
         onChange={(e) => { const v = inputToMs(e.target.value); if (e.target.value && v < range[1]) setRange([v, range[1]]); else if (e.target.value) toast.error("“From” must be earlier than “To”."); }} data-testid="range-from-input" /></label>
     <label className="text-xs space-y-1"><span className="eyebrow block">To</span>
-      <input type="datetime-local" className="h-9 rounded-md border bg-white px-2 mono text-xs" value={msToInput(range[1])}
+      <input type="datetime-local" className="h-9 rounded-md border bg-card px-2 mono text-xs" value={msToInput(range[1])}
         onChange={(e) => { const v = inputToMs(e.target.value); if (e.target.value && v > range[0]) setRange([range[0], v]); else if (e.target.value) toast.error("“To” must be later than “From”."); }} data-testid="range-to-input" /></label>
   </div>
 );
@@ -62,10 +64,10 @@ const ContextSection = ({ hr, temp, range, focused, tickCount }) => {
   const items = [[hr, "#7c3aed", "hr-chart"], [temp, "#c2410c", "temp-chart"]];
   if (items.every(([s]) => s.data && !s.data.points.length)) return null;
   return (
-    <div className="space-y-3 border-t pt-4" data-testid="context-charts">
+    <div className="space-y-4 pt-6 mt-2 border-t border-[var(--line)]" data-testid="context-charts">
       <div>
-        <div className="eyebrow">Contextual wearable data · no change detection · same date range</div>
-        <p className="text-xs text-muted-foreground mt-1">One-minute mean (line) with min–max range (shaded). No thresholds or change detection are applied to these measurements; they are context only, not evidence of a diagnosis or cause. Skin temperature is measured at the wrist surface, not core body temperature.</p>
+        <h3 className="text-base font-semibold">Wearable context <span className="font-normal text-muted-foreground text-sm">· no change detection · same date range</span></h3>
+        <p className="text-xs text-muted-foreground mt-1 max-w-3xl">One-minute mean (line) with min–max range (shaded). No thresholds or change detection are applied to these measurements; they are context only, not evidence of a diagnosis or cause. Skin temperature is measured at the wrist surface, not core body temperature.</p>
       </div>
       {items.map(([s, color, id]) => (
         <div key={id}>
@@ -73,7 +75,7 @@ const ContextSection = ({ hr, temp, range, focused, tickCount }) => {
           {s.error && <ErrorBox message={s.error} onRetry={s.reload} testid={`${id}-error`} />}
           {s.data && s.data.points.length > 0 && (
             <>
-              <div className="text-sm font-medium">{s.data.label} <span className="text-muted-foreground font-normal">({s.data.unit}{s.data.unit_status === "unverified" ? ", unverified" : ""}) · {s.data.points.length} one-minute summaries · {s.data.gaps.length} gaps &gt; 2 min</span></div>
+              <div className="text-sm font-semibold">{s.data.label} <span className="text-muted-foreground font-normal">({s.data.unit}{s.data.unit_status === "unverified" ? ", unverified" : ""}) · {s.data.points.length} one-minute summaries · {s.data.gaps.length} gaps &gt; 2 min</span></div>
               <UnitProvenance s={s.data} id={id} />
               <Conflicts s={s.data} id={id} />
               <ContextChart series={s.data} range={range} color={color} testid={id} focused={focused} tickCount={tickCount} />
@@ -101,7 +103,7 @@ export default function PatientDetail() {
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
-  const tickCount = width < 640 ? 3 : width < 1024 ? 5 : 7;
+  const tickCount = width < 400 ? 2 : width < 640 ? 3 : width < 1024 ? 5 : 7;
   const focusId = params.get("event");
 
   const full = useMemo(() => {
@@ -130,14 +132,16 @@ export default function PatientDetail() {
 
   return (
     <div className="space-y-6">
-      <Link to="/" className="text-sm text-muted-foreground inline-flex items-center hover:text-foreground" data-testid="back-to-overview"><ChevronLeft className="h-4 w-4" />All participants</Link>
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <Link to="/" className="text-sm text-muted-foreground inline-flex items-center hover:text-foreground rounded" data-testid="back-to-overview"><ChevronLeft className="h-4 w-4" />All participants</Link>
+      <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <div className="eyebrow">Participant timeline</div>
-          <h1 className="text-3xl font-semibold tracking-tight mt-1">Participant <span className="mono" data-testid="patient-id-heading">{p.id}</span></h1>
-          <span className="inline-block mt-2 text-xs rounded px-2 py-0.5 bg-secondary" data-testid="patient-data-label">{p.data_label}</span>
+          <h1 className="display text-4xl sm:text-5xl">Participant <span data-testid="patient-id-heading">{p.id}</span></h1>
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            <span className="pill bg-secondary text-foreground font-medium" data-testid="patient-data-label">{p.data_label}</span>
+            {p.events.filter((e) => e.review_status !== "reviewed").length > 0 && <span className="pill tag-change" data-testid="patient-unreviewed-summary">{p.events.filter((e) => e.review_status !== "reviewed").length} of {p.events.length} changes not reviewed</span>}
+          </div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-4">
           <Stat label="Latest" value={latest ? `${latest.value} mg/dL` : "—"} sub={latest ? fmtTs(latest.ts) : null} testid="patient-latest" />
           <Stat label="Readings" value={pts.length} sub={`cadence ${p.cadence_seconds ? fmtDur(p.cadence_seconds / 60) : "—"}`} testid="patient-readings" />
           <Stat label="Gaps" value={series.data.gaps.length} sub="> 2× cadence" testid="patient-gaps" />
@@ -149,10 +153,12 @@ export default function PatientDetail() {
         <Empty title="No glucose readings stored" testid="patient-no-data">Import a CSV for this participant to see the timeline.</Empty>
       ) : (
         <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
-          <div className="panel p-5 space-y-4 min-w-0">
+          <div className="space-y-3 min-w-0">
+          <SectionRule index="02" label="Glucose · personal baseline" meta="mg/dL · as recorded" testid="timeline-rule" />
+          <div className="panel p-5 sm:p-6 space-y-5 min-w-0">
             <div data-testid="glucose-detection-heading">
-              <div className="eyebrow">Glucose · change detection applied</div>
-              <p className="text-xs text-muted-foreground mt-1">Only glucose is compared with this participant's personal baseline. Changes for review and AI briefs are based on glucose alone.</p>
+              <h2 className="text-lg font-semibold">Glucose against personal baseline <span className="font-normal text-muted-foreground text-sm">· mg/dL · change detection applied</span></h2>
+              <p className="text-xs text-muted-foreground mt-1 max-w-3xl">Only glucose is compared with this participant's personal baseline. Changes for review and AI briefs are based on glucose alone.</p>
             </div>
             {range && <RangeControls full={full} range={range} setRange={setRange} />}
             {range && <GlucoseChart points={pts} gaps={series.data.gaps} events={p.events} range={range} focusId={focusId} tickCount={tickCount} />}
@@ -160,12 +166,14 @@ export default function PatientDetail() {
             <ContextSection hr={hr} temp={temp} range={range} focused={focused} tickCount={tickCount} />
             <p className="text-xs text-muted-foreground">Timestamps are shown as recorded in the source file; no timezone was supplied. Baseline: preceding {p.settings.baseline_hours} h of this participant's readings only.</p>
           </div>
-          <aside className="space-y-4">
+          </div>
+          <aside className="space-y-4 lg:sticky lg:top-24">
+            <SectionRule index="03" label="Changes for review" meta={`${p.events.filter((e) => e.review_status !== "reviewed").length} open`} testid="changes-rule" />
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold">Changes for review <span className="text-muted-foreground font-normal">({p.events.length})</span></h2>
+              <h2 className="text-lg font-semibold">Changes for review <span className="text-muted-foreground font-normal">({p.events.length})</span></h2>
               {focusId && <Button size="sm" variant="ghost" onClick={() => { focus(null); setRange(full); }} data-testid="clear-event-focus">Clear focus</Button>}
             </div>
-            {focused && <EvidencePanel e={focused} />}
+            <AnimatePresence mode="wait" initial={false}>{focused && <EvidencePanel key={focused.id} e={focused} />}</AnimatePresence>
             {p.events.length === 0 ? (
               <div className="panel p-4 text-sm text-muted-foreground" data-testid="no-events-note">
                 No sustained changes were detected with the current detector settings. This does not mean the participant is clinically stable or safe.

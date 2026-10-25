@@ -16,6 +16,17 @@ memory/test_credentials.md
 test_reports/
 backend/tests/.snapshot_*.json
 .emergent/testing/
+# impeccable-ignore-start
+**/.impeccable/config.local.json
+**/.impeccable/hook.cache.json
+**/.impeccable/hook.pending.json
+**/.impeccable/*.png
+**/.impeccable/review/
+**/.impeccable/questions/
+**/.impeccable/live/
+.claude/skills/impeccable/scripts/bin/
+# impeccable-ignore-end
+
 
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
@@ -111,3 +122,6 @@ frontend/node_modules/.cache/default-development/6.pack
 frontend/node_modules/.cache/default-development/7.pack
 frontend/node_modules/.cache/default-development/0.pack
 frontend/node_modules/.cache/default-development/1.pack
+frontend/node_modules/.cache/default-development/8.pack
+frontend/node_modules/.cache/default-development/11.pack
+frontend/node_modules/.cache/default-development/10.pack

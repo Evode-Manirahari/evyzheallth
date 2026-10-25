@@ -3,6 +3,7 @@ import hashlib
 import json
 import logging
 import os
+import shutil
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -10,7 +11,7 @@ from typing import Literal, Optional
 
 import requests
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
 from pymongo import ReturnDocument
@@ -636,6 +637,144 @@ async def eeg_demo_compare(pid: str, _: dict = Depends(staff)):
         raise HTTPException(429, detail={"error": "busy", "message": "Another EEG comparison is running. Try again in about 15 seconds."})
     async with DEMO_LOCK:
         return await run_demo("compare", pid)
+
+
+# --- Upload onboarding: raw BNCI 001-2014 .mat -> validate -> preprocess -> calibrate -> predict -> compare ---
+UPLOAD_ROLES = {"calibration": "T", "evaluation": "E"}
+MAX_UPLOAD_BYTES = 120 * 1024 * 1024
+JOB_LOCK = asyncio.Semaphore(1)
+JOB_TASKS: set = set()
+
+
+def _job_dir(job_id: str) -> Path:
+    if not job_id.isalnum() or len(job_id) != 32:
+        raise HTTPException(404, "Unknown upload job.")
+    d = Path(os.environ["EVYZ_BCI2A_DIR"]) / "uploads" / job_id
+    if not (d / "job.json").exists():
+        raise HTTPException(404, "Unknown upload job.")
+    return d
+
+
+class UploadJobIn(BaseModel):
+    participant: str
+
+
+@api.post("/research/uploads")
+async def create_upload_job(body: UploadJobIn, member: dict = Depends(staff)):
+    pid = _eeg_pid(body.participant)
+    job_id = uuid.uuid4().hex
+    d = Path(os.environ["EVYZ_BCI2A_DIR"]) / "uploads" / job_id
+    d.mkdir(parents=True)
+    meta = {"id": job_id, "participant": pid, "created_at": datetime.now(timezone.utc).isoformat(), "created_by": member.get("email"), "files": {}}
+    (d / "job.json").write_text(json.dumps(meta))
+    return meta
+
+
+@api.put("/research/uploads/{job_id}/files/{role}")
+async def upload_chunk(job_id: str, role: str, request: Request, index: int, total: int, filename: str = "", _: dict = Depends(staff)):
+    d = _job_dir(job_id)
+    if role not in UPLOAD_ROLES:
+        raise HTTPException(400, "Role must be 'calibration' or 'evaluation'.")
+    if (d / "status.json").exists():
+        raise HTTPException(409, "This job has already been processed; start a new upload.")
+    if not filename.lower().endswith(".mat"):
+        raise HTTPException(400, "Only .mat recordings from BNCI Horizon 001-2014 are accepted.")
+    part = d / f"{role}.mat.part"
+    nxt = d / f"{role}.next"
+    if int(request.headers.get("content-length") or 0) > 8 * 1024 * 1024:
+        raise HTTPException(413, "Chunk larger than 8 MB.")
+    if index == 0:
+        part.unlink(missing_ok=True)
+    elif not part.exists() or not nxt.exists() or int(nxt.read_text()) != index:
+        raise HTTPException(409, "Upload out of order; restart this file.")
+    chunk = await request.body()
+    if (part.stat().st_size if part.exists() else 0) + len(chunk) > MAX_UPLOAD_BYTES:
+        part.unlink(missing_ok=True)
+        raise HTTPException(413, "File is larger than 120 MB; BNCI 001-2014 recordings are about 40 MB.")
+    with part.open("ab") as f:
+        f.write(chunk)
+    nxt.write_text(str(index + 1))
+    meta = json.loads((d / "job.json").read_text())
+    if index == total - 1:
+        part.replace(d / f"{role}.mat")
+        meta["files"][role] = {"name": filename, "bytes": (d / f"{role}.mat").stat().st_size}
+        (d / "job.json").write_text(json.dumps(meta))
+    return {"received": index + 1, "total": total, "complete": index == total - 1, "files": meta["files"]}
+
+
+async def _run_job(d: Path, pid: str):
+    async with JOB_LOCK:
+        try:
+            await run_demo("job", str(d), pid)
+        except HTTPException as e:
+            if not (d / "status.json").exists():
+                (d / "status.json").write_text(json.dumps({"state": "failed", "stages": [], "error": str(e.detail)}))
+        finally:
+            for p in d.glob("*.mat"):
+                p.unlink(missing_ok=True)  # retention: raw recordings are deleted once the job finishes
+
+
+@api.post("/research/uploads/{job_id}/process", status_code=202)
+async def process_upload(job_id: str, _: dict = Depends(staff)):
+    d = _job_dir(job_id)
+    return _start_job(d)
+
+
+SAMPLE_PID = "A01"
+SAMPLE_LOCK = asyncio.Lock()
+SAMPLE_LABEL = "Sample raw recordings stored on server. Processed now. Source models prepared beforehand, excluding A01."
+
+
+@api.post("/research/uploads/sample", status_code=202)
+async def process_sample(member: dict = Depends(staff)):
+    raw = Path(os.environ["EVYZ_BCI2A_DIR"])
+    originals = {"calibration": raw / f"{SAMPLE_PID}T.mat", "evaluation": raw / f"{SAMPLE_PID}E.mat"}
+    missing = [p.name for p in originals.values() if not p.exists()]
+    if missing:
+        raise HTTPException(503, detail={"error": "sample_missing", "message": f"Sample recordings are not on the server: {', '.join(missing)}."})
+    if JOB_LOCK.locked() or SAMPLE_LOCK.locked():
+        raise HTTPException(429, detail={"error": "busy", "message": "Another upload is being processed. Try again shortly."})
+    async with SAMPLE_LOCK:
+        job_id = uuid.uuid4().hex
+        d = raw / "uploads" / job_id
+        d.mkdir(parents=True)
+        try:
+            files = {}
+            for role, src in originals.items():
+                await asyncio.to_thread(shutil.copyfile, src, d / f"{role}.mat")  # job-owned copy; originals are read-only and never modified
+                files[role] = {"name": src.name, "bytes": src.stat().st_size, "source": "server sample (copied into this job)"}
+            meta = {"id": job_id, "participant": SAMPLE_PID, "created_at": datetime.now(timezone.utc).isoformat(), "created_by": member.get("email"),
+                    "files": files, "input": "server_sample", "label": SAMPLE_LABEL}
+            (d / "job.json").write_text(json.dumps(meta))
+            return _start_job(d)
+        except BaseException:
+            shutil.rmtree(d, ignore_errors=True)  # only this job's own folder
+            raise
+
+
+def _start_job(d: Path):
+    meta = json.loads((d / "job.json").read_text())
+    missing = [r for r in UPLOAD_ROLES if r not in meta["files"]]
+    if missing:
+        raise HTTPException(400, detail={"error": "missing_files", "message": f"Upload the {' and '.join(missing)} recording first.", "missing": missing})
+    if (d / "status.json").exists():
+        raise HTTPException(409, "This job has already been processed.")
+    if JOB_LOCK.locked():
+        raise HTTPException(429, detail={"error": "busy", "message": "Another upload is being processed. Try again shortly."})
+    (d / "status.json").write_text(json.dumps({"state": "queued", "stages": []}))
+    task = asyncio.create_task(_run_job(d, meta["participant"]))
+    JOB_TASKS.add(task)
+    task.add_done_callback(JOB_TASKS.discard)
+    return {"id": meta["id"], "state": "queued"}
+
+
+@api.get("/research/uploads/{job_id}")
+async def upload_status(job_id: str, _: dict = Depends(staff)):
+    d = _job_dir(job_id)
+    meta = json.loads((d / "job.json").read_text())
+    st = json.loads((d / "status.json").read_text()) if (d / "status.json").exists() else {"state": "awaiting_upload", "stages": []}
+    st.pop("traceback", None)
+    return {**meta, **st}
 
 
 @api.get("/health")
