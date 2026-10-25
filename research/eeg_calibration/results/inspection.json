@@ -1,0 +1,507 @@
+{
+ "generated_at": "2026-10-25T06:01:32.734381+00:00",
+ "namespace": "bci_iv_2a",
+ "versions": {
+  "python": "3.11.17",
+  "mne": "1.13.2",
+  "pyriemann": "0.12",
+  "scikit-learn": "1.9.1",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1"
+ },
+ "settings": {
+  "eeg_channels": 22,
+  "eog_used": false,
+  "bandpass_hz": [
+   8.0,
+   30.0
+  ],
+  "filter": "MNE IIR Butterworth order 4, zero-phase (filtfilt), per run on continuous signal",
+  "epoch_window_s_after_cue": [
+   0.5,
+   2.5
+  ],
+  "cue_offset_s_from_trial_start": 2.0,
+  "covariance_estimator": "oas",
+  "classifier": "pyriemann MDM(metric='riemann')",
+  "exclude_expert_artifact_trials": true,
+  "nan_handling": "NaN samples (run separators) replaced by 0 before filtering",
+  "source_sessions_used_for_training": [
+   "T"
+  ],
+  "target_calibration_session": "T",
+  "target_test_session": "E",
+  "target_calibration_labels_used": false,
+  "seed": 0
+ },
+ "files": [
+  {
+   "file": "A01T.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 15,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A01E.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 7,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A02T.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 18,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A02E.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 5,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A03T.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 18,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A03E.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 15,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A04T.mat",
+   "runs_total": 7,
+   "task_runs": 6,
+   "eog_only_runs": 1,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 26,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A04E.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 60,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A05T.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 26,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A05E.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 12,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A06T.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 69,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A06E.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 73,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A07T.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 17,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A07E.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 11,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A08T.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 24,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A08E.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 17,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A09T.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 51,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  },
+  {
+   "file": "A09E.mat",
+   "runs_total": 9,
+   "task_runs": 6,
+   "eog_only_runs": 3,
+   "channels": 25,
+   "fs": [
+    250
+   ],
+   "trials": 288,
+   "class_counts": {
+    "1": 72,
+    "2": 72,
+    "3": 72,
+    "4": 72
+   },
+   "artifact_trials": 24,
+   "classes": [
+    "left hand",
+    "right hand",
+    "feet",
+    "tongue"
+   ],
+   "nan_samples": 0,
+   "official_labels_match": true
+  }
+ ]
+}

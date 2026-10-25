@@ -19,6 +19,7 @@ export default function AppShell({ children }) {
             <NavLink to="/" end className={navCls} data-testid="nav-patients">Patients</NavLink>
             <NavLink to="/import" className={navCls} data-testid="nav-import">Import</NavLink>
             <NavLink to="/settings" className={navCls} data-testid="nav-settings">Detector</NavLink>
+            <NavLink to="/lab" className={navCls} data-testid="nav-lab"><span className="sm:hidden">Lab</span><span className="hidden sm:inline">Personalization Lab</span></NavLink>
             {me?.role === "admin" && <NavLink to="/team" className={navCls} data-testid="nav-team">Team</NavLink>}
           </nav>
           <div className="ml-auto flex items-center gap-3">

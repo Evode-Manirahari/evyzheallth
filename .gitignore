@@ -8,6 +8,8 @@
 *.db
 *.sqlite
 data/
+exports/
+frontend/public/*.bundle
 memory/test_credentials.md
 test_reports/
 backend/tests/.snapshot_*.json
@@ -105,3 +107,5 @@ frontend/node_modules/.cache/default-development/4.pack
 frontend/node_modules/.cache/default-development/5.pack
 frontend/node_modules/.cache/default-development/6.pack
 frontend/node_modules/.cache/default-development/7.pack
+frontend/node_modules/.cache/default-development/0.pack
+frontend/node_modules/.cache/default-development/1.pack

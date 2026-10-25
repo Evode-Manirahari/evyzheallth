@@ -46,7 +46,7 @@ Defaults are unvalidated and can be changed on the **Detector** page:
 You need Python 3.11, Node 18+ with yarn, and MongoDB.
 
 Backend `.env`:
-- required: `MONGO_URL`, `DB_NAME`, `EMERGENT_LLM_KEY` and `SERVER_DATA_DIR` (a folder outside Git holding `HR_<id>.csv` / `TEMP_<id>.csv`);
+- required: `MONGO_URL`, `DB_NAME`, `EMERGENT_LLM_KEY`, `SERVER_DATA_DIR` (a folder outside Git holding `HR_<id>.csv` / `TEMP_<id>.csv`) and `RESEARCH_RESULTS_PATH` (e.g. `/path/to/research/eeg_calibration/results/loso_all.json`);
 - optional: `LLM_PROVIDER` / `LLM_MODEL`;
 - `ADMIN_EMAIL` (comma-separated first admins);
 - the Clerk keys, which the Emergent platform provisions.
@@ -65,6 +65,31 @@ Load the data:
 3. Place `HR_<id>.csv` / `TEMP_<id>.csv` in `SERVER_DATA_DIR` and use **Files already on the server**.
 
 The synthetic test fixture (`backend/tests/fixtures/SYNTHETIC_Dexcom_900.csv`, from `make_synthetic_fixture.py`) is **not real data**. It is labelled "Synthetic test fixture" in the app.
+
+## What runs from this export alone vs what needs more
+
+| Component | Runs from the export | Needs separately |
+|---|---|---|
+| Clinic app code (FastAPI + React) | Yes, after `pip install` / `yarn install` | MongoDB; the auth keys (Clerk publishable + secret; Emergent provisions these, self-hosting needs your own Clerk app); `ADMIN_EMAIL` |
+| Glucose import, baseline, events, reviews | Yes, with the synthetic fixture | Real Dexcom CSVs from PhysioNet BIG IDEAs (not included) |
+| Heart-rate / skin-temperature context | Code only | `HR_<id>.csv` / `TEMP_<id>.csv` from PhysioNet, placed in `SERVER_DATA_DIR` |
+| AI event briefs | Template fallback always works | `EMERGENT_LLM_KEY` (Emergent Universal Key) for Claude briefs |
+| Personalization Lab page | Yes: the saved results (`research/eeg_calibration/results/*.json`) are included | Sign-in (above), with `RESEARCH_RESULTS_PATH` pointing at `loso_all.json` |
+| Re-running the EEG experiment | Code + `requirements.lock.txt` | The 18 BNCI 001-2014 `.mat` files (about 780 MB) and the optional official `true_labels.zip`; see `research/eeg_calibration/README.md` |
+
+Not included: clinic database contents (participant 001's imported readings, events, AI briefs, reviews), raw recordings, `.env` files, credentials and test reports.
+
+## Personalization Lab (exploratory EEG benchmark)
+The `/lab` page reads `RESEARCH_RESULTS_PATH` through `GET /api/research/eeg-calibration` (sign-in required, read-only, no database).
+- Comparison: a minimum-distance-to-mean classifier with no alignment versus the same classifier with participant-specific Riemannian recentering.
+- Evaluation: leave one participant out, on BCI IV 2a.
+- Offline conditions:
+  - zero-phase filtering over complete runs;
+  - expert artifact exclusions;
+  - each held-out participant's full training session needed for calibration.
+- Percentage-point changes use unrounded values.
+
+This is calibration, not fine-tuning, with no clinical validation and no significance testing. It is not linked to the clinic data.
 
 ## Demo walkthrough (participant 001)
 1. **Patients**: 001 is listed with its latest glucose, coverage and unreviewed changes. The list is sorted by newest unreviewed change; there is no risk ranking.

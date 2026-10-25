@@ -1,0 +1,158 @@
+{
+ "generated_at": "2026-10-25T06:01:58.325091+00:00",
+ "namespace": "bci_iv_2a",
+ "versions": {
+  "python": "3.11.17",
+  "mne": "1.13.2",
+  "pyriemann": "0.12",
+  "scikit-learn": "1.9.1",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1"
+ },
+ "settings": {
+  "eeg_channels": 22,
+  "eog_used": false,
+  "bandpass_hz": [
+   8.0,
+   30.0
+  ],
+  "filter": "MNE IIR Butterworth order 4, zero-phase (filtfilt), per run on continuous signal",
+  "epoch_window_s_after_cue": [
+   0.5,
+   2.5
+  ],
+  "cue_offset_s_from_trial_start": 2.0,
+  "covariance_estimator": "oas",
+  "classifier": "pyriemann MDM(metric='riemann')",
+  "exclude_expert_artifact_trials": true,
+  "nan_handling": "NaN samples (run separators) replaced by 0 before filtering",
+  "source_sessions_used_for_training": [
+   "T"
+  ],
+  "target_calibration_session": "T",
+  "target_test_session": "E",
+  "target_calibration_labels_used": false,
+  "seed": 0
+ },
+ "folds": [
+  {
+   "target": "A01",
+   "sources": [
+    "A02",
+    "A03",
+    "A04",
+    "A05",
+    "A06",
+    "A07",
+    "A08",
+    "A09"
+   ],
+   "source_training_trials": 2055,
+   "calibration_trials_unlabeled": 273,
+   "test_trials": 281,
+   "A_no_alignment": {
+    "accuracy": 0.5267,
+    "macro_f1": 0.4943,
+    "confusion_matrix": [
+     [
+      68,
+      0,
+      3,
+      0
+     ],
+     [
+      54,
+      16,
+      0,
+      0
+     ],
+     [
+      7,
+      4,
+      34,
+      24
+     ],
+     [
+      3,
+      1,
+      37,
+      30
+     ]
+    ],
+    "n_test": 281
+   },
+   "B_recentered": {
+    "accuracy": 0.6121,
+    "macro_f1": 0.5855,
+    "confusion_matrix": [
+     [
+      60,
+      2,
+      6,
+      3
+     ],
+     [
+      41,
+      29,
+      0,
+      0
+     ],
+     [
+      1,
+      2,
+      21,
+      45
+     ],
+     [
+      0,
+      0,
+      9,
+      62
+     ]
+    ],
+    "n_test": 281
+   },
+   "delta_accuracy_B_minus_A": 0.0854,
+   "delta_macro_f1_B_minus_A": 0.0912
+  }
+ ],
+ "summary": {},
+ "epoch_counts": {
+  "A01": {
+   "T": 273,
+   "E": 281
+  },
+  "A02": {
+   "T": 270,
+   "E": 283
+  },
+  "A03": {
+   "T": 270,
+   "E": 273
+  },
+  "A04": {
+   "T": 262,
+   "E": 228
+  },
+  "A05": {
+   "T": 262,
+   "E": 276
+  },
+  "A06": {
+   "T": 219,
+   "E": 215
+  },
+  "A07": {
+   "T": 271,
+   "E": 277
+  },
+  "A08": {
+   "T": 264,
+   "E": 271
+  },
+  "A09": {
+   "T": 237,
+   "E": 264
+  }
+ }
+}

@@ -11,6 +11,7 @@ import PatientDetail from "./pages/PatientDetail";
 import EventReview from "./pages/EventReview";
 import SettingsPage from "./pages/SettingsPage";
 import TeamPage from "./pages/TeamPage";
+import PersonalizationLab from "./pages/PersonalizationLab";
 
 const AuthLayout = ({ children }) => (
   <div className="min-h-screen grid lg:grid-cols-2">
@@ -36,6 +37,7 @@ const Workspace = () => (
         <Route path="/events/:eid" element={<EventReview />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/team" element={<TeamPage />} />
+        <Route path="/lab" element={<PersonalizationLab />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>

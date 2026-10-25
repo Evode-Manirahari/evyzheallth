@@ -49,6 +49,23 @@ FastAPI (server.py, importer.py, detector.py, brief.py, clerk_auth.py) + MongoDB
 - .gitignore now excludes test_reports, snapshots, test_credentials, data/, .env.
 - GitHub push is done by the user via Save to GitHub (agent has no GitHub tool).
 
+## 2026-10-25 — EEG calibration research module (separate namespace bci_iv_2a)
+- /app/research/eeg_calibration: data.py, pipeline.py, run.py, README, requirements.lock.txt, results/*.json. Uses the venv at /root/evyz-research-venv (MNE 1.13.2, pyRiemann 0.12, sklearn 1.9.1).
+- Data: BNCI 001-2014 .mat for all 18 files (in /app/data/bci_iv_2a, git-ignored). E labels match the official bbci.de true_labels.
+- LOSO, MDM (A) vs MDM + Riemannian recentering (B):
+  - mean accuracy 0.358 → 0.472, macro-F1 0.274 → 0.445;
+  - regressions: A02, A07.
+
+## 2026-10-25 — Personalization Lab page
+- Code audit:
+  - each source is recentered with its own T session only;
+  - the target reference is target T only, without labels;
+  - no target E data is used for fitting;
+  - both pipelines score identical test trials (checked programmatically).
+  - Disclosed: zero-phase filtering per E run, and expert artifact flags used for exclusion.
+- GET /api/research/eeg-calibration (staff only) serves the results file named in RESEARCH_RESULTS_PATH; it returns 503 if unavailable. No DB writes.
+- /lab page: means, 9 folds, selector with confusion matrices, regressions A02/A07, method notes. Testing iteration 5: all pass.
+
 ## Backlog
 - P1: real BIG IDEAs CSV import validation once user uploads; multi-file batch import
 - P2: heart-rate / skin-temperature importers; export of reviewed events; GitHub push (via platform "Save to GitHub")

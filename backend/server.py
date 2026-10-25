@@ -1,4 +1,5 @@
 import hashlib
+import json
 import logging
 import os
 import uuid
@@ -570,6 +571,19 @@ async def startup():
     await db.import_staging.create_index("created_dt", expireAfterSeconds=6 * 3600)
     for old, new in RETIRED_ROLES.items():
         await db.users.update_many({"role": old}, {"$set": {"role": new}})
+
+
+@api.get("/research/eeg-calibration")
+async def eeg_calibration_results(_: dict = Depends(staff)):
+    """Read-only: serves the saved research results file. Separate from the clinic database."""
+    path = Path(os.environ["RESEARCH_RESULTS_PATH"])
+    try:
+        data = json.loads(await run_in_threadpool(path.read_text))
+    except (OSError, json.JSONDecodeError):
+        raise HTTPException(503, "EEG benchmark results are unavailable (results file missing or unreadable).")
+    if not data.get("folds"):
+        raise HTTPException(503, "EEG benchmark results file contains no folds.")
+    return {"source_file": path.name, **data}
 
 
 @api.get("/health")
