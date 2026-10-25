@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import json
 import logging
@@ -584,6 +585,57 @@ async def eeg_calibration_results(_: dict = Depends(staff)):
     if not data.get("folds"):
         raise HTTPException(503, "EEG benchmark results file contains no folds.")
     return {"source_file": path.name, **data}
+
+
+EEG_PARTICIPANTS = [f"A0{i}" for i in range(1, 10)]
+DEMO_LOCK = asyncio.Semaphore(1)  # one EEG computation at a time
+
+
+async def run_demo(*args: str) -> dict:
+    """Run the research-module demo CLI in its own Python environment (separate from the clinic)."""
+    cli = Path(os.environ["RESEARCH_DEMO_CLI"])
+    py = os.environ["RESEARCH_PYTHON"]
+    if not cli.exists() or not Path(py).exists():
+        raise HTTPException(503, detail={"error": "research_env_missing", "missing": [p for p in (str(cli), py) if not Path(p).exists()]})
+    proc = await asyncio.create_subprocess_exec(py, str(cli), *args, cwd=str(cli.parent),
+                                                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+    try:
+        out, err = await asyncio.wait_for(proc.communicate(), timeout=180)
+    except asyncio.TimeoutError:
+        proc.kill()
+        raise HTTPException(504, detail={"error": "timeout", "message": "The EEG computation took longer than 180 s and was stopped."})
+    try:
+        result = json.loads(out.decode().strip().splitlines()[-1])
+    except (IndexError, json.JSONDecodeError):
+        raise HTTPException(500, detail={"error": "cli_failed", "message": err.decode()[-400:] or "No output from the research module."})
+    if result.get("error"):
+        raise HTTPException(409, detail=result)
+    return result
+
+
+def _eeg_pid(pid: str) -> str:
+    if pid not in EEG_PARTICIPANTS:
+        raise HTTPException(404, "Unknown EEG participant (expected A01–A09).")
+    return pid
+
+
+@api.get("/research/demo/{pid}/status")
+async def eeg_demo_status(pid: str, _: dict = Depends(staff)):
+    return await run_demo("status", _eeg_pid(pid))
+
+
+@api.post("/research/demo/{pid}/calibrate")
+async def eeg_demo_calibrate(pid: str, recompute: bool = False, _: dict = Depends(staff)):
+    return await run_demo("calibrate", _eeg_pid(pid), *(["--recompute"] if recompute else []))
+
+
+@api.post("/research/demo/{pid}/compare")
+async def eeg_demo_compare(pid: str, _: dict = Depends(staff)):
+    pid = _eeg_pid(pid)
+    if DEMO_LOCK.locked():
+        raise HTTPException(429, detail={"error": "busy", "message": "Another EEG comparison is running. Try again in about 15 seconds."})
+    async with DEMO_LOCK:
+        return await run_demo("compare", pid)
 
 
 @api.get("/health")

@@ -66,6 +66,23 @@ FastAPI (server.py, importer.py, detector.py, brief.py, clerk_auth.py) + MongoDB
 - GET /api/research/eeg-calibration (staff only) serves the results file named in RESEARCH_RESULTS_PATH; it returns 503 if unavailable. No DB writes.
 - /lab page: means, 9 folds, selector with confusion matrices, regressions A02/A07, method notes. Testing iteration 5: all pass.
 
+## 2026-10-25 — Demo handoff
+- Lab: pp-rounding note + "Offline evaluation conditions" panel (zero-phase filtering, expert artifact exclusions, full-session calibration)
+- README: "What runs from this export alone vs what needs more" table + Lab section + RESEARCH_RESULTS_PATH
+- Clean export refreshed: /root/evyz-clean-export (1 commit 05a7414, 123 files), bundle + tar.gz in /app/exports and public download links (frontend/public/evyz-handoff-527ca1f8d348.*, git-ignored)
+
+## 2026-10-25 — Online EEG personalization demo (/lab)
+- research/eeg_calibration/demo_cli.py: prepare (per-session covariances with labels in separate files), status, calibrate (reference from T covs only; computed_now vs loaded), compare (trains A/B on the 8 source T sessions, predicts target E, loads labels only after for scoring; benchmark check ±1e-4; reference-unchanged check)
+- Artifacts are in /app/data/bci_iv_2a/artifacts (git-ignored). pipeline.epochs gained return_ids (protocol unchanged).
+- API: GET /api/research/demo/{pid}/status, POST …/calibrate?recompute, POST …/compare (subprocess in the research venv, one compare at a time, 429 if busy)
+- UI: LiveDemo.jsx above the saved benchmark section
+- All 9 participants match the benchmark with diff 0.0 (results/demo_equivalence_check.txt). Testing iteration 6 passed. Fixed afterwards: missing-artifacts crash, stale-response race, "No change" label, trial legend.
+
+## 2026-10-25 — Demo handoff finalization
+- Renamed to "Interactive EEG personalization demo" and added the note "Runs calibration and inference on prerecorded EEG processed offline." The existing limitations are still shown.
+- README: new "Fresh installation" section covering both venvs, pinned versions, env vars, start commands, and which files the demo needs vs which files regenerate them. The research README has a new demo_cli section.
+- Clean export updated: a new commit on top of d0f74cf, branch `update`. Prepared EEG artifacts, raw .mat files, the database, .env files and credentials are excluded.
+
 ## Backlog
 - P1: real BIG IDEAs CSV import validation once user uploads; multi-file batch import
 - P2: heart-rate / skin-temperature importers; export of reviewed events; GitHub push (via platform "Save to GitHub")

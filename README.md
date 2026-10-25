@@ -43,7 +43,7 @@ Defaults are unvalidated and can be changed on the **Detector** page:
 - Results are cached per event and evidence version. A failed brief never blocks charts, events or reviews.
 
 ## Setup
-You need Python 3.11, Node 18+ with yarn, and MongoDB.
+You need Python 3.11, Node 18+ with yarn, and MongoDB. For the interactive EEG demo, see **Fresh installation** below.
 
 Backend `.env`:
 - required: `MONGO_URL`, `DB_NAME`, `EMERGENT_LLM_KEY`, `SERVER_DATA_DIR` (a folder outside Git holding `HR_<id>.csv` / `TEMP_<id>.csv`) and `RESEARCH_RESULTS_PATH` (e.g. `/path/to/research/eeg_calibration/results/loso_all.json`);
@@ -75,6 +75,7 @@ The synthetic test fixture (`backend/tests/fixtures/SYNTHETIC_Dexcom_900.csv`, f
 | Heart-rate / skin-temperature context | Code only | `HR_<id>.csv` / `TEMP_<id>.csv` from PhysioNet, placed in `SERVER_DATA_DIR` |
 | AI event briefs | Template fallback always works | `EMERGENT_LLM_KEY` (Emergent Universal Key) for Claude briefs |
 | Personalization Lab page | Yes: the saved results (`research/eeg_calibration/results/*.json`) are included | Sign-in (above), with `RESEARCH_RESULTS_PATH` pointing at `loso_all.json` |
+| Interactive EEG demo (`/lab`) | Code only | The research venv (below) and the 37 prepared files in `$EVYZ_BCI2A_DIR/artifacts/`, which you generate once from the raw recordings |
 | Re-running the EEG experiment | Code + `requirements.lock.txt` | The 18 BNCI 001-2014 `.mat` files (about 780 MB) and the optional official `true_labels.zip`; see `research/eeg_calibration/README.md` |
 
 Not included: clinic database contents (participant 001's imported readings, events, AI briefs, reviews), raw recordings, `.env` files, credentials and test reports.
@@ -90,6 +91,73 @@ The `/lab` page reads `RESEARCH_RESULTS_PATH` through `GET /api/research/eeg-cal
 - Percentage-point changes use unrounded values.
 
 This is calibration, not fine-tuning, with no clinical validation and no significance testing. It is not linked to the clinic data.
+
+### Interactive EEG personalization demo
+This runs calibration and inference on prerecorded EEG that was processed offline. It is not live streaming.
+- **Prepare personal calibration:** `POST /api/research/demo/{A01..A09}/calibrate`. Computes the participant's Riemannian reference from training-session covariances only, without labels, or loads the saved one.
+- **Compare predictions:** `POST /api/research/demo/{id}/compare`.
+  - Trains pipelines A and B on the other 8 participants.
+  - Predicts the held-out evaluation trials.
+  - Only then reads the evaluation labels, for scoring.
+  - Checks the result against `loso_all.json`.
+- **Runs in a separate process:** the backend runs `research/eeg_calibration/demo_cli.py` with `$RESEARCH_PYTHON`, one request at a time. It never touches MongoDB.
+
+## Fresh installation (clinic app + Lab + interactive EEG demo)
+Tested here with Python 3.11.17, Node 20.20.2, yarn 1.22.22 and MongoDB. The commands are relative to the repo root.
+
+**1. Clinic backend and frontend**
+```
+python3.11 -m venv .venv && .venv/bin/pip install -r backend/requirements.txt \
+  --extra-index-url https://d33sy5i8bnduwe.cloudfront.net/simple/   # needed for emergentintegrations==0.2.2
+cd frontend && yarn install && cd ..
+```
+
+**2. Separate research environment** (the backend calls it as a subprocess; never install it into the backend venv)
+```
+python3.11 -m venv ~/evyz-research-venv
+~/evyz-research-venv/bin/pip install -r research/eeg_calibration/requirements.lock.txt
+```
+Key pinned versions are mne 1.13.2, pyriemann 0.12, scikit-learn 1.9.1, numpy 2.4.6 and scipy 1.17.1. The full list is in `requirements.lock.txt`.
+
+**3. EEG input files.** These are not in Git; see the table below.
+```
+export EVYZ_BCI2A_DIR=/abs/path/bci_iv_2a           # outside the repo
+# put A01T.mat … A09E.mat (BNCI Horizon 001-2014) in $EVYZ_BCI2A_DIR
+cd research/eeg_calibration
+~/evyz-research-venv/bin/python demo_cli.py prepare  # writes $EVYZ_BCI2A_DIR/artifacts/ (~18 MB, ~15 s)
+```
+After `prepare`, the `.mat` files can be removed: the demo reads only `artifacts/`.
+
+**4. `backend/.env`** (not committed)
+```
+MONGO_URL=…  DB_NAME=…  CORS_ORIGINS=http://localhost:3000  EMERGENT_LLM_KEY=…  ADMIN_EMAIL=admin@example.com
+CLERK_PUBLISHABLE_KEY=…  CLERK_SECRET_KEY=…   (Emergent provisions these; self-hosting needs your own Clerk app)
+LLM_PROVIDER=anthropic  LLM_MODEL=claude-opus-5-5   (optional)
+SERVER_DATA_DIR=/abs/path/wearable_csvs
+RESEARCH_RESULTS_PATH=/abs/path/repo/research/eeg_calibration/results/loso_all.json
+RESEARCH_PYTHON=/abs/path/evyz-research-venv/bin/python
+RESEARCH_DEMO_CLI=/abs/path/repo/research/eeg_calibration/demo_cli.py
+EVYZ_BCI2A_DIR=/abs/path/bci_iv_2a     # the backend passes it on to the subprocess
+```
+Set `frontend/.env` to `REACT_APP_BACKEND_URL=http://localhost:8001`.
+
+**5. Start**
+```
+.venv/bin/uvicorn server:app --app-dir backend --host 0.0.0.0 --port 8001
+cd frontend && yarn start            # http://localhost:3000 → sign in → /lab
+```
+
+### Files the demo needs vs files needed to regenerate them
+| Purpose | Files | In Git? |
+|---|---|---|
+| **Run the demo** | `research/eeg_calibration/*.py`, `results/loso_all.json` (used for the benchmark check) | Yes |
+| **Run the demo** | `$EVYZ_BCI2A_DIR/artifacts/`: `covs_{A01..A09}{T,E}.npz` (OAS covariances + trial IDs), `labels_{A01..A09}{T,E}.npz` and `manifest.json` (settings + creation time) | No: derived from CC BY-ND data; regenerate with `demo_cli.py prepare` |
+| Created on first click | `artifacts/calref_<id>.npz` (personal reference) | No: shown as "Computed now" the first time, then "Loaded" |
+| **Regenerate the inputs** | 18 raw recordings, `A01T.mat` … `A09E.mat` (~744 MB, BNCI Horizon 2020 001-2014) | No: download from https://bnci-horizon-2020.eu/database/data-sets |
+| Optional label cross-check | `true_labels/*.mat` from https://www.bbci.de/competition/iv/results/ds2a/true_labels.zip | No |
+| Re-run the full benchmark | Raw recordings, then `python run.py all` (rewrites `results/`) | Not needed for the demo |
+
+If any prepared file is missing, the demo names the missing files and computes nothing.
 
 ## Demo walkthrough (participant 001)
 1. **Patients**: 001 is listed with its latest glucose, coverage and unreviewed changes. The list is sorted by newest unreviewed change; there is no risk ranking.

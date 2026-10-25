@@ -22,9 +22,9 @@ SETTINGS = {
 }
 
 
-def epochs(subject: str, session: str):
+def epochs(subject: str, session: str, return_ids: bool = False):
     s = load_session(subject, session)
-    X, y = [], []
+    X, y, ids = [], [], []
     lo, hi = SETTINGS["bandpass_hz"]
     for r in s["runs"]:
         if not r["trial"].size:
@@ -34,12 +34,15 @@ def epochs(subject: str, session: str):
         sig = mne.filter.filter_data(sig, fs, lo, hi, method="iir", iir_params={"order": 4, "ftype": "butter"}, verbose=False)
         a = int((SETTINGS["cue_offset_s_from_trial_start"] + SETTINGS["epoch_window_s_after_cue"][0]) * fs)
         b = int((SETTINGS["cue_offset_s_from_trial_start"] + SETTINGS["epoch_window_s_after_cue"][1]) * fs)
-        for t, lab, art in zip(r["trial"], r["y"], r["artifacts"]):
+        for k, (t, lab, art) in enumerate(zip(r["trial"], r["y"], r["artifacts"]), start=1):
             if SETTINGS["exclude_expert_artifact_trials"] and art:
                 continue
             start = t - 1  # MATLAB 1-based sample index
             X.append(sig[:, start + a:start + b])
             y.append(lab)
+            ids.append(f"{subject}{session}-run{r['run']}-trial{k:02d}")
+    if return_ids:
+        return np.array(X), np.array(y), ids
     return np.array(X), np.array(y)
 
 

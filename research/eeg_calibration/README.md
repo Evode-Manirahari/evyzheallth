@@ -37,3 +37,18 @@ All settings are fixed a priori and recorded in each results JSON under `setting
 - **Reproducibility:** seed 0 is recorded; MDM itself is deterministic. Library versions are recorded in every results JSON.
 
 This is calibration (unsupervised reference estimation), not fine-tuning. No classifier parameters are refit on target data.
+
+## Interactive demo (`demo_cli.py`)
+This runs calibration and inference on prerecorded EEG that was processed offline. It is not live streaming.
+- `python demo_cli.py prepare`: rebuilds the demo inputs from the raw `.mat` files.
+  - Writes per-session covariances (`covs_<S><T|E>.npz`) and labels (`labels_*.npz`, kept in separate files) to `$EVYZ_BCI2A_DIR/artifacts/`.
+  - Uses the same preprocessing as `run.py`.
+  - Takes about 15 s and produces about 18 MB.
+- `status <S>`: lists which inputs exist for participant S.
+- `calibrate <S> [--recompute]`: computes the Riemannian mean of S's T covariances without opening any label file, and stores it as `calref_<S>.npz`.
+- `compare <S>`:
+  - Fits A and B on the 8 source T sessions.
+  - Predicts S's E trials, and only then loads the E labels for scoring.
+  - Checks the result against `results/loso_all.json`.
+
+Once `artifacts/` exists, the demo does not need the raw recordings. None of these files are committed: they are derived from CC BY-ND 4.0 data. Regenerate them with `prepare`.

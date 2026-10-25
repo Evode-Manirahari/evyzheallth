@@ -10,6 +10,7 @@
 data/
 exports/
 frontend/public/*.bundle
+frontend/public/*.tar.gz
 memory/test_credentials.md
 test_reports/
 backend/tests/.snapshot_*.json

@@ -1,0 +1,9 @@
+A01 pass maxdiff 0.0 cm True refUnchanged True pp 8.54
+A02 pass maxdiff 0.0 cm True refUnchanged True pp -4.95
+A03 pass maxdiff 0.0 cm True refUnchanged True pp 7.33
+A04 pass maxdiff 0.0 cm True refUnchanged True pp 9.65
+A05 pass maxdiff 0.0 cm True refUnchanged True pp 11.23
+A06 pass maxdiff 0.0 cm True refUnchanged True pp 12.09
+A07 pass maxdiff 0.0 cm True refUnchanged True pp -5.78
+A08 pass maxdiff 0.0 cm True refUnchanged True pp 30.63
+A09 pass maxdiff 0.0 cm True refUnchanged True pp 33.71

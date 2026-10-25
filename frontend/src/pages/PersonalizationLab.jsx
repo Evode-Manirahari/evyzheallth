@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { FlaskConical, AlertTriangle } from "lucide-react";
 import { useFetch } from "../lib/api";
 import { Loading, ErrorBox } from "../components/StateViews";
+import { LiveDemo } from "../components/LiveDemo";
 
 const CLASSES = ["Left hand", "Right hand", "Feet", "Tongue"];
 const pctTxt = (x) => `${(x * 100).toFixed(1)}%`;
@@ -124,10 +125,12 @@ export default function PersonalizationLab() {
         <p className="mt-2 inline-block text-sm rounded px-2 py-1 tag-change font-medium" data-testid="lab-label">Exploratory EEG benchmark — calibration, not fine-tuning; no clinical validation.</p>
         <p className="text-sm text-muted-foreground mt-2 max-w-3xl">Pipeline A: one shared covariance-based minimum-distance-to-mean classifier. Pipeline B: the same classifier with participant-specific Riemannian recentering (unsupervised reference from calibration data).</p>
       </div>
+      <LiveDemo Matrix={Matrix} classes={CLASSES} />
       {loading && <Loading />}
       {error && <ErrorBox message={`Benchmark results unavailable: ${error}`} onRetry={reload} testid="lab-unavailable" />}
       {data && fold && (
         <>
+          <h2 className="text-lg font-semibold pt-2" data-testid="saved-benchmark-heading">Saved benchmark results <span className="text-sm font-normal text-muted-foreground">(loaded from the results file, not recomputed)</span></h2>
           <Summary s={data.summary} n={data.folds.length} />
           <p className="text-xs text-muted-foreground" data-testid="lab-pp-note">Percentage-point (pp) changes are computed from the unrounded stored values, so they can differ by 0.1 pp from subtracting the rounded percentages shown.</p>
           <Conditions d={data} />
