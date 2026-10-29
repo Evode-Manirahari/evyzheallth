@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FlaskConical, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { useFetch } from "../lib/api";
 import { Loading, ErrorBox } from "../components/StateViews";
 import { LiveDemo } from "../components/LiveDemo";
@@ -120,8 +120,7 @@ export default function PersonalizationLab() {
   return (
     <div className="space-y-6">
       <div>
-        <div className="eyebrow flex items-center gap-1.5"><FlaskConical className="h-3.5 w-3.5" />Personalization Lab</div>
-        <h1 className="text-3xl font-semibold tracking-tight mt-1">Cross-participant EEG calibration</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Cross-participant EEG calibration</h1>
         <p className="mt-2 inline-block text-sm rounded px-2 py-1 tag-change font-medium" data-testid="lab-label">Exploratory EEG benchmark — calibration, not fine-tuning; no clinical validation.</p>
         <p className="text-sm text-muted-foreground mt-2 max-w-3xl">Pipeline A: one shared covariance-based minimum-distance-to-mean classifier. Pipeline B: the same classifier with participant-specific Riemannian recentering (unsupervised reference from calibration data).</p>
       </div>

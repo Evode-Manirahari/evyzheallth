@@ -30,8 +30,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <div className="eyebrow">Detector</div>
-        <h1 className="text-3xl font-semibold tracking-tight mt-1">Change-detection settings</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Change-detection settings</h1>
         <p className="text-sm text-muted-foreground mt-2">Unvalidated demonstration settings. Each reading is compared with the participant's own preceding readings (current and future readings excluded). A reading is flagged outside median ± max(multiplier × scale × MAD, minimum half-width). Consecutive same-direction flags lasting at least the minimum duration form one change for review.</p>
         <p className="text-xs mono mt-2" data-testid="detector-version">{data.version}</p>
       </div>

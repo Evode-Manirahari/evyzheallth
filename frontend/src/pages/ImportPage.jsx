@@ -55,8 +55,7 @@ export default function ImportPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <div>
-        <div className="eyebrow">Import</div>
-        <h1 className="text-3xl font-semibold tracking-tight mt-1">Import data</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Import data</h1>
         <p className="text-sm text-muted-foreground mt-1">One participant per file. Dexcom exports (BIG IDEAs format) are detected automatically; other layouts can be mapped manually. Reimporting a file never duplicates readings.</p>
       </div>
 

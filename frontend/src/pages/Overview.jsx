@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Upload } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, CircleCheck, Search, Upload, UsersRound } from "lucide-react";
 import { useFetch } from "../lib/api";
 import { fmtTs, pct } from "../lib/format";
 import { Input } from "../components/ui/input";
@@ -20,12 +21,12 @@ const SummaryCell = ({ p }) => {
 const Row = ({ p }) => {
   const navigate = useNavigate();
   return (
-    <tr className="border-t hover:bg-secondary/50 cursor-pointer" onClick={() => navigate(`/patients/${p.id}`)} data-testid={`patient-row-${p.id}`}>
+    <motion.tr layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.985 }} transition={{ duration: 0.2 }} className="participant-row cursor-pointer" onClick={() => navigate(`/patients/${p.id}`)} data-testid={`patient-row-${p.id}`}>
       <td className="px-4 py-3">
-        <Link to={`/patients/${p.id}`} className="mono font-medium text-[var(--navy)] underline-offset-4 hover:underline" onClick={(e) => e.stopPropagation()} data-testid={`patient-link-${p.id}`}>
-          {p.id}
+        <Link to={`/patients/${p.id}`} className="patient-link" onClick={(e) => e.stopPropagation()} data-testid={`patient-link-${p.id}`}>
+          <span className="patient-avatar" aria-hidden="true">{p.id.slice(-2)}</span>
+          <span><strong>Participant {p.id}</strong><small>{p.data_label}</small></span>
         </Link>
-        <div className="text-[11px] text-muted-foreground">{p.data_label}</div>
       </td>
       <td className="px-4 py-3 mono">{p.latest ? `${p.latest.value} ${p.latest.unit}` : "—"}</td>
       <td className="px-4 py-3 mono text-sm">{p.latest ? fmtTs(p.latest.ts) : "—"}</td>
@@ -43,7 +44,7 @@ const Row = ({ p }) => {
         {p.newest_unreviewed_start && <div className="text-[11px] text-muted-foreground mt-1">newest {fmtTs(p.newest_unreviewed_start)}</div>}
       </td>
       <td className="px-4 py-3"><SummaryCell p={p} /></td>
-    </tr>
+    </motion.tr>
   );
 };
 
@@ -55,38 +56,51 @@ export default function Overview() {
     () => (data || []).filter((p) => p.id.toLowerCase().includes(q.trim().toLowerCase()) && (!onlyUnreviewed || p.unreviewed > 0)),
     [data, q, onlyUnreviewed]
   );
+  const counts = useMemo(() => ({
+    participants: data?.length || 0,
+    toReview: (data || []).reduce((sum, p) => sum + p.unreviewed, 0),
+    reviewed: (data || []).reduce((sum, p) => sum + Math.max(0, p.events_total - p.unreviewed), 0),
+  }), [data]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <div className="eyebrow">Patient overview</div>
-          <h1 className="text-3xl font-semibold tracking-tight mt-1">Participants</h1>
-          <p className="text-sm text-muted-foreground mt-1">Sorted by newest unreviewed change. No risk ranking is applied.</p>
+    <div className="overview-page">
+      <div className="overview-heading">
+        <div className="overview-heading-copy">
+          <h1>Participants</h1>
+          <p>Find what changed between visits, then review the evidence in context.</p>
         </div>
-        <Button asChild data-testid="overview-import-button"><Link to="/import"><Upload className="h-4 w-4 mr-2" />Import CSV</Link></Button>
+        <Button asChild data-testid="overview-import-button" className="import-action"><Link to="/import"><Upload className="h-4 w-4" />Import data <ArrowRight className="h-4 w-4" /></Link></Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="relative w-full sm:w-72">
-          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <Input aria-label="Search participant ID" placeholder="Search participant ID" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 bg-white" data-testid="patient-search-input" />
-        </div>
-        <label className="flex items-center gap-2 text-sm cursor-pointer">
-          <Switch checked={onlyUnreviewed} onCheckedChange={setOnlyUnreviewed} data-testid="filter-unreviewed-switch" />
-          Only participants with unreviewed changes
-        </label>
+      <div className="overview-stats" aria-label="Workspace summary">
+        <div className="overview-stat"><span className="stat-icon stat-icon-blue"><UsersRound size={18} /></span><div><span>Participants</span><strong>{data ? counts.participants : "—"}</strong></div></div>
+        <div className="overview-stat"><span className="stat-icon stat-icon-amber"><span className="stat-signal" /></span><div><span>Changes to review</span><strong>{data ? counts.toReview : "—"}</strong></div></div>
+        <div className="overview-stat"><span className="stat-icon stat-icon-teal"><CircleCheck size={18} /></span><div><span>Reviews saved</span><strong>{data ? counts.reviewed : "—"}</strong></div></div>
+        <div className="overview-stats-note">Counts describe review workflow, not clinical risk.</div>
       </div>
 
-      {loading && <Loading />}
-      {error && <ErrorBox message={error} onRetry={reload} />}
-      {data && data.length === 0 && (
-        <Empty title="No participants yet" testid="overview-empty">
-          Import a glucose CSV (for example a BIG IDEAs <span className="mono">Dexcom_001.csv</span>) to create the first participant timeline.
-        </Empty>
-      )}
-      {data && data.length > 0 && (
-        <div className="panel overflow-x-auto">
+      <div className="queue-section">
+        <div className="queue-heading"><div><h2>Participant directory</h2><p>Sorted by newest unreviewed change. No risk ranking is applied.</p></div><span className="queue-count">{data ? `${rows.length} shown` : "—"}</span></div>
+        <div className="queue-tools">
+          <div className="relative w-full sm:w-72">
+            <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Input aria-label="Search participant ID" placeholder="Search participant ID" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 bg-white" data-testid="patient-search-input" />
+          </div>
+          <label className="review-filter">
+            <Switch checked={onlyUnreviewed} onCheckedChange={setOnlyUnreviewed} data-testid="filter-unreviewed-switch" />
+            <span>Needs review only</span>
+          </label>
+        </div>
+
+        {loading && <Loading />}
+        {error && <ErrorBox message={error} onRetry={reload} />}
+        {data && data.length === 0 && (
+          <Empty title="No participants yet" testid="overview-empty">
+            Import a glucose CSV (for example a BIG IDEAs <span className="mono">Dexcom_001.csv</span>) to create the first participant timeline.
+          </Empty>
+        )}
+        {data && data.length > 0 && (
+          <div className="panel overview-table-wrap overflow-x-auto">
           <table className="w-full text-sm" data-testid="patients-table">
             <thead className="text-left bg-secondary/60">
               <tr className="eyebrow">
@@ -99,14 +113,15 @@ export default function Overview() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((p) => <Row key={p.id} p={p} />)}
+              <AnimatePresence initial={false}>{rows.map((p) => <Row key={p.id} p={p} />)}</AnimatePresence>
               {rows.length === 0 && (
                 <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground" data-testid="overview-no-match">No participants match these filters.</td></tr>
               )}
             </tbody>
           </table>
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

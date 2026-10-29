@@ -133,8 +133,7 @@ export default function PatientDetail() {
       <Link to="/" className="text-sm text-muted-foreground inline-flex items-center hover:text-foreground" data-testid="back-to-overview"><ChevronLeft className="h-4 w-4" />All participants</Link>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="eyebrow">Participant timeline</div>
-          <h1 className="text-3xl font-semibold tracking-tight mt-1">Participant <span className="mono" data-testid="patient-id-heading">{p.id}</span></h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Participant <span className="mono" data-testid="patient-id-heading">{p.id}</span></h1>
           <span className="inline-block mt-2 text-xs rounded px-2 py-0.5 bg-secondary" data-testid="patient-data-label">{p.data_label}</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">

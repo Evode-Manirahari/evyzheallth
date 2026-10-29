@@ -22,8 +22,7 @@ export default function TeamPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <div className="eyebrow">Team</div>
-        <h1 className="text-3xl font-semibold tracking-tight mt-1">Team access</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Team access</h1>
         <p className="text-sm text-muted-foreground mt-1">New accounts start as <b>pending</b> and cannot see participant data until approved as clinician or admin.</p>
       </div>
       <div className="panel overflow-x-auto">

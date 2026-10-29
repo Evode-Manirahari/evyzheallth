@@ -4,11 +4,11 @@ import { ClerkProvider } from "@clerk/react";
 
 const appearance = {
   variables: {
-    colorPrimary: "#0f766e",
-    colorForeground: "#162a4a",
+    colorPrimary: "#087d73",
+    colorForeground: "#14283e",
     colorBackground: "#ffffff",
     fontFamily: "IBM Plex Sans, system-ui, sans-serif",
-    borderRadius: "6px",
+    borderRadius: "10px",
   },
 };
 
@@ -35,8 +35,8 @@ export default function ClerkAuthProvider({ children }) {
     return () => { cancelled = true; };
   }, []);
 
-  if (unavailable) return <p style={{ padding: 24 }}>Sign-in is unavailable right now. Refresh the page to try again.</p>;
-  if (!config) return null;
+  if (unavailable) return <div className="auth-boot" role="alert"><div className="auth-boot-mark">EVYZ<span>.</span></div><h1>Sign-in is unavailable</h1><p>We could not connect to the sign-in service. Refresh the page to try again.</p><button type="button" onClick={() => window.location.reload()}>Refresh page</button></div>;
+  if (!config) return <div className="auth-boot" role="status"><div className="auth-boot-mark">EVYZ<span>.</span></div><div className="auth-boot-progress" aria-hidden="true" /><p>Opening workspace…</p></div>;
   return (
     <ClerkProvider
       publishableKey={config.publishable_key}
