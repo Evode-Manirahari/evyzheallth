@@ -1,28 +1,31 @@
-# EVYZ design thesis
+# EVYZ design system
 
-EVYZ is a review workspace for specialist care teams. Its interface should make a sustained change easy to find, then make the evidence behind that change easy to inspect. The visual language takes its cues from a careful clinical report: clear hierarchy, measured density, precise labels, and quiet space around consequential decisions.
+EVYZ is a review workspace for specialist care teams. A sustained change should be easy to find, and the evidence behind it easy to inspect. The interface uses a calm clinical record as its visual reference: clear hierarchy, measured density, precise labels, and space around consequential decisions.
 
-## Product truth
+## Product boundaries
 
 - The main workflow is import → participant timeline → sustained-change event → evidence-linked brief → saved human review.
-- Glucose change detection compares each participant with their own recent history. Heart rate and skin temperature are contextual measurements.
+- Glucose change detection compares each participant with their own recent history. Heart rate and skin temperature provide context.
 - Events are ordered by recency for review. They are not risk ranked or diagnoses.
-- The software is a demonstration prototype and is not clinically validated or a medical device.
+- The EEG lab is a separate research demonstration using a public dataset. It does not affect clinic participants or reviews.
+- EVYZ is a demonstration prototype, not clinically validated and not a medical device.
 
-These points come from the project [README](README.md). Interface copy and visuals must preserve those boundaries.
+## Layout and hierarchy
 
-## Visual system
+- A dark navigation rail anchors the desktop workspace. On narrow screens, navigation becomes a scrollable horizontal row.
+- A warm paper content surface holds the task, current state, controls, and evidence in that order.
+- Dense evidence stays in tables where comparison matters; narrow screens scroll those tables within their own region.
+- Page titles have no kicker labels. Status meaning appears in text as well as color.
 
-- **Structure:** a stable dark navigation rail on desktop, compact horizontal navigation on mobile, and a warm light reading surface. The navigation stays quiet while the content carries the task.
-- **Hierarchy:** each page opens with the task, followed by current state, controls, then evidence. Numeric values use tabular figures. Dense tables remain tables where comparison matters.
-- **Color:** navy is the frame; teal identifies current position and primary action; amber marks items awaiting review. Status meaning must also be written in text.
-- **Type:** IBM Plex Sans for interface language, IBM Plex Mono for measurement, identifiers, and timestamps. Short labels are precise; prose remains readable.
-- **Surfaces:** subtle borders and restrained depth. Cards group a real task or evidence set, not decoration.
+## Color and type
 
-## Motion thesis
+- Paper: `hsl(42 30% 95%)`; panel: `hsl(40 60% 99%)`; ink: `hsl(156 14% 12%)`.
+- Teal `#0e6b62` marks the current location and primary actions. Amber `#8a4a00` marks changes awaiting review. Regression and error use `#9b2f1f`.
+- Public Sans carries interface text; Newsreader is used for display headings; IBM Plex Mono marks code and identifiers. Figures use tabular numerals.
+- Charts retain the distinct colors for glucose, baseline, flags, gaps, heart rate, and skin temperature.
 
-Motion explains where attention went. The navigation indicator follows the current destination, the participant list responds to review filtering, and route changes use a brief transition. The sign-in signal draws once to explain the move from personal baseline to sustained change; it is explicitly illustrative. Routine actions stay fast, and reduced-motion preferences remove spatial movement.
+## Surfaces and motion
 
-## Responsive and accessible behavior
-
-The content column expands on large screens. On narrow screens, the navigation becomes a scrollable horizontal row and dense evidence tables scroll within their own region. Controls retain visible focus, text labels carry status, and all animation has a reduced-motion path.
+- Panels use a subtle hairline and restrained depth. Cards group a real task or evidence set.
+- Navigation selection follows the current destination, participant rows respond to filtering, and route changes use a brief transition. The sign-in signal illustrates movement from personal baseline to sustained change.
+- Reduced-motion preferences remove spatial animation. Controls retain visible focus and press feedback.

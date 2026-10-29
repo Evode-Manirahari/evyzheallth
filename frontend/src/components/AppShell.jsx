@@ -56,6 +56,7 @@ export default function AppShell({ children }) {
 
   return (
     <div className="app-layout">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-card focus:px-3 focus:py-2 focus:rounded-md" data-testid="skip-to-content">Skip to content</a>
       <aside className="app-sidebar">
         <div>
           <Brand light />
@@ -77,7 +78,7 @@ export default function AppShell({ children }) {
           <div className="topbar-account"><span className="topbar-email" data-testid="current-user-email">{me?.email}</span><UserButton /></div>
         </header>
         <Navigation me={me} mobile />
-        <motion.main key={location.pathname} className="app-main" initial={{ opacity: 0.85, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}>
+        <motion.main id="main" key={location.pathname} className="app-main" initial={{ opacity: 0.85, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}>
           {children}
         </motion.main>
         <footer className="app-footer"><span>For human review only. Detected changes are not diagnoses.</span><span>EVYZ · Clinical research prototype</span></footer>

@@ -22,8 +22,8 @@ SETTINGS = {
 }
 
 
-def epochs(subject: str, session: str, return_ids: bool = False):
-    s = load_session(subject, session)
+def epochs(subject: str, session: str, return_ids: bool = False, path=None):
+    s = load_session(subject, session, path)
     X, y, ids = [], [], []
     lo, hi = SETTINGS["bandpass_hz"]
     for r in s["runs"]:

@@ -83,6 +83,43 @@ FastAPI (server.py, importer.py, detector.py, brief.py, clerk_auth.py) + MongoDB
 - README: new "Fresh installation" section covering both venvs, pinned versions, env vars, start commands, and which files the demo needs vs which files regenerate them. The research README has a new demo_cli section.
 - Clean export updated: a new commit on top of d0f74cf, branch `update`. Prepared EEG artifacts, raw .mat files, the database, .env files and credentials are excluded.
 
+## 2026-10-25 — Impeccable UI redesign (demo)
+- Impeccable 4.7 is installed at project scope: `.claude/skills/impeccable`, engine v0.1.16. Ran its `context` and `detect` commands and applied its guidance (craft floor, Operate mode, polish).
+- Added PRODUCT.md and DESIGN.md.
+- Visual system: warm paper, dark ink and teal; amber means awaiting review; regressions are red with icons. Fonts: Public Sans with tabular numbers, Newsreader for page titles. Kicker labels removed, focus rings strengthened, skip link added, reduced motion respected.
+- Patient list: headline count of real changes, and a "Next action" column (moves under the review status on phones). Patient timeline: section titles and a pill showing changes not yet reviewed. Event review: AI/template attribution pill, and "Unsaved changes" or "Saved" status. Lab: research banner and three steps (Select, Prepare, Compare), with explicit Improvement or Regression labels.
+- Testing iteration 8: frontend 100% passed. Test participant 900 was removed afterwards and the clinic data is unchanged.
+
+## 2026-10-25 — UI verification pass
+- Patient list on phones: rows become stacked cards and the "Review changes" button sits below the status. Checked at 320 and 390 px: nothing clipped and no sideways scroll.
+- Header: solid background. On phones the navigation moves to its own second row. Added scroll padding so focused controls are never hidden under the header.
+- Lab: fingerprints, training provenance and benchmark checks now sit in collapsible "Technical details" sections. Offline-processing limitations and computed/loaded labels stay visible.
+- Handoff screenshots are in docs/screenshots/, made by scripts/capture_handoff.py. Testing iteration 9: frontend 100% passed.
+
+## 2026-10-25 — Experimental redesign (branch experiment/evyz-redesign)
+- Baseline is preserved as `main` at e62a652, tagged demo-stable-2026-10-25.
+- References are documented in docs/EXPERIMENT_REFERENCES.md. Skills copied into the project: emil-review-animations, taste-skill, ponytail.
+- Visual changes: EVYZ SVG mark; serif "figure" numbers (unreviewed count, event duration, benchmark means); micrographic section rules; flat 1 px panels.
+- Motion with the existing framer-motion, respecting reduced motion: selection ring, evidence panel swap, staggered result reveal, animated save check.
+- Lab: a 4-node signal path driven by real request states, an indeterminate bar while comparing, and a diverging change strip covering all 9 participants.
+- Screenshots: docs/screenshots/before-experiment and after-experiment. Testing iteration 10: all checks passed. Fixes applied afterwards: true minus signs, two-row change strip on phones, chart and date-input focus rings.
+
+## 2026-10-25 — EEG upload onboarding (branch feature/eeg-upload-onboarding, from 145848f)
+- Lab "Upload recordings and run the pipeline":
+  - chunked upload (4 MB chunks) of raw BNCI 001-2014 MAT files;
+  - a backend job running the research CLI (`demo_cli.py job`): validate (structure + official checksum/role check) → preprocess (covariances from the uploaded files only; calibration labels discarded) → calibrate → predict (source models `source_models_excl_A01.pkl`, built by `demo_cli.py sources A01`) → score (evaluation labels opened after prediction);
+  - stages polled live.
+- A01 matches the benchmark exactly (52.7% → 61.2%, +8.5 pp). Server processing takes about 3 s; upload about 7–12 s.
+- Raw uploads are deleted when a job finishes. The prepared-data demo is kept as a labelled fallback.
+- Testing iterations 13–14: pass. Backend tests are in tests/test_eeg_upload.py.
+
+## 2026-10-25 — Sample recordings option (A01)
+- "Use sample recordings — A01" button (POST /api/research/uploads/sample). Copies the read-only originals A01T.mat and A01E.mat (official checksums verified, chmod 444) into a fresh job folder, then runs the same validate → preprocess → calibrate → predict → score job as manual uploads.
+- Only the job's own copies are deleted afterwards. Concurrent requests: one starts and the others get 429, with no leftover folders.
+- Label: "Sample raw recordings stored on server. Processed now. Source models prepared beforehand, excluding A01."
+- A01 result: 52.7% → 61.2%, +8.5 pp, benchmark match. About 3.0 s server processing, about 4.5–5.4 s from click to result.
+- Testing iterations 15–16 passed.
+
 ## Backlog
 - P1: real BIG IDEAs CSV import validation once user uploads; multi-file batch import
 - P2: heart-rate / skin-temperature importers; export of reviewed events; GitHub push (via platform "Save to GitHub")
